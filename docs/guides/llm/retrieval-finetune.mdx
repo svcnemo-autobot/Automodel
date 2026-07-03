@@ -39,7 +39,7 @@ a small candidate set and you want a stronger reranking stage.
 Before running the examples:
 
 - Use an AutoModel environment with the full GPU training dependencies installed. The NGC container is the safest path
-  for multi-GPU runs; for source checkouts, see [Installation](/get-started/installation) and run
+  for multi-GPU runs; for source checkouts, refer to [Installation](/get-started/installation) and run
   `uv sync --frozen --extra all`.
 - Run the example commands from a source checkout or an NGC/container workspace that contains the repository
   `examples/` tree. The YAML configs and mining helpers below are repo-relative; if you use an installed package
@@ -47,7 +47,7 @@ Before running the examples:
 - From a source checkout, use `uv run automodel ...`; from an installed environment that has local copies of the
   configs, use `automodel ...`.
 - Accept access terms for the configured Hugging Face model and set `HF_TOKEN`, or replace the model path with a model
-  your environment can download. See the support matrix below before swapping model families.
+  your environment can download. Refer to the support matrix below before swapping model families.
 - Make sure every rank can read the dataset paths or `hf://` sources.
 
 The commands below use `automodel`; if you are running from a source checkout, prefix them with `uv run`. For direct
@@ -724,6 +724,7 @@ With `--drop-invalid-negatives --output`, the command exits successfully when th
 findings and still satisfies `--min-negatives` if you set it. The audit flags missing or non-finite positive scores, and
 flags and drops negatives whose IDs also appear in the row's `pos_doc`, duplicate negative IDs in the same row, missing
 negative scores, and non-finite negative scores.
+
 The cleaned output preserves query lineage fields such as `original_question_id`, so unrolled examples remain traceable
 to their source question.
 

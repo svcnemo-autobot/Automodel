@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # To run this recipe:
-#   automodel examples/retrieval/cross_encoder/llama3_2_1b.yaml --nproc-per-node 8
+#   uv run automodel examples/retrieval/cross_encoder/llama3_2_1b.yaml --nproc-per-node 8
 # Adjust --nproc-per-node to the number of GPUs available on your machine.
 
 recipe: TrainCrossEncoderRecipe
@@ -29,7 +29,7 @@ step_scheduler:
 
 dist_env:
   backend: nccl
-  timeout_minutes: 1
+  timeout_minutes: 30
 
 model:
   _target_: nemo_automodel.NeMoAutoModelCrossEncoder.from_pretrained
@@ -52,9 +52,8 @@ dataloader:
     _target_: nemo_automodel.components.datasets.llm.make_retrieval_dataset
     model_type: cross_encoder
     data_dir_list:
-      - retriever_models_research/training_datasets/nqsh_shuffled_50k.json
-      - retriever_models_research/training_datasets/mldr_en_perc95_small.json
-      - retriever_models_research/training_datasets/miracl_train_es_llama3_1b_4m_512len.json
+      - hf://nvidia/embed-nemotron-dataset-v1/FEVER
+      - hf://nvidia/embed-nemotron-dataset-v1/SyntheticClassificationData
     data_type: train
     n_passages: 5
     seed: 42
@@ -78,8 +77,6 @@ dataloader:
 #     n_passages: 5
 #     seed: 42
 #     do_shuffle: false
-#     max_train_samples: 1000
-#     train_data_select_offset: 0
 #   collate_fn:
 #     _target_: nemo_automodel.components.datasets.llm.CrossEncoderCollator
 #     rerank_max_length: 512
