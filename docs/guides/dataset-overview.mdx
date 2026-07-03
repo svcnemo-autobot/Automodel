@@ -5,7 +5,7 @@ position: 1
 ---
 This page summarizes the datasets supported in NeMo AutoModel for LLM, VLM, and retrieval training and shows how to plug in your own datasets using Python functions or the YAML `_target_` mechanism.
 
-- See also: [LLM datasets](/datasets/text-dataset), [VLM datasets](/datasets/multi-modal-dataset), and [Retrieval dataset](/datasets/retrieval-dataset) for deeper, task-specific guides.
+- Refer to [LLM datasets](/datasets/text-dataset), [VLM datasets](/datasets/multi-modal-dataset), [Retrieval dataset](/datasets/retrieval-dataset), and [Retrieval fine-tuning](/recipes-e2e-examples/retrieval-finetune) for deeper, task-specific guidance.
 
 - If a dataset you need is missing, please open a [GitHub issue](https://github.com/NVIDIA-NeMo/Automodel/issues) with a short description and example schema so we can prioritize support.
 ---
@@ -242,26 +242,38 @@ dataset:
 See the [Function Calling guide](/recipes-e2e-examples/function-calling) for an end-to-end example with FunctionGemma.
 For a small reasoning-style chat SFT starting point, see [qwen2_5_0p5b_instruct_fineproofs_chat.yaml](https://github.com/NVIDIA-NeMo/Automodel/blob/main/examples/llm_finetune/qwen/qwen2_5_0p5b_instruct_fineproofs_chat.yaml).
 
-### Retrieval (Embedding Fine-Tuning)
-- Factory: `nemo_automodel.components.datasets.llm.make_retrieval_dataset`
-- Collator: `nemo_automodel.components.datasets.llm.BiEncoderCollator`
-- Use case: embedding model fine-tuning with (query, positive doc, negative docs) contrastive learning
-- Supported schemas:
+### Retrieval Fine-Tuning
+- Factory for corpus ID JSON and `hf://` AutoModel-schema sources:
+  `nemo_automodel.components.datasets.llm.make_retrieval_dataset`
+- Factory for inline JSONL:
+  `nemo_automodel.components.datasets.llm.retrieval_dataset_inline.make_retrieval_dataset`
+- Collators: `nemo_automodel.components.datasets.llm.BiEncoderCollator` or
+  `nemo_automodel.components.datasets.llm.CrossEncoderCollator`
+- Use case: bi-encoder embedding fine-tuning with contrastive query/passage groups, or cross-encoder reranking over
+  query/passage pairs
+- Supported retrieval sources:
   - Corpus-ID JSON (Merlin/NeMo-retriever style)
+  - `hf://` sources that already follow the AutoModel retrieval schema
   - Inline-text JSONL (e.g., `{"query": "...", "pos_doc": "...", "neg_doc": ["...", "..."]}`)
-- Example YAML:
+- Inline JSONL example:
 ```yaml
-dataset:
-  _target_: nemo_automodel.components.datasets.llm.make_retrieval_dataset
-  data_dir_list: /abs/path/to/train.jsonl
-  data_type: train
-  n_passages: 5
-collate_fn:
-  _target_: nemo_automodel.components.datasets.llm.BiEncoderCollator
-  q_max_len: 512
-  p_max_len: 512
+dataloader:
+  _target_: torchdata.stateful_dataloader.StatefulDataLoader
+  dataset:
+    _target_: nemo_automodel.components.datasets.llm.retrieval_dataset_inline.make_retrieval_dataset
+    model_type: bi_encoder
+    data_dir_list:
+      - /abs/path/to/train.jsonl
+    data_type: train
+    n_passages: 5
+  collate_fn:
+    _target_: nemo_automodel.components.datasets.llm.BiEncoderCollator
+    q_max_len: 512
+    p_max_len: 512
+  batch_size: 2
+  shuffle: true
 ```
-See the detailed guide, [Retrieval dataset](/datasets/retrieval-dataset), for more information.
+Refer to [Retrieval dataset](/datasets/retrieval-dataset) for schema details and [Retrieval fine-tuning](/recipes-e2e-examples/retrieval-finetune) for the end-to-end workflow.
 
 ### NanoGPT Binary Shards (Pretraining)
 - Class: `nemo_automodel.components.datasets.llm.nanogpt_dataset.NanogptDataset`
