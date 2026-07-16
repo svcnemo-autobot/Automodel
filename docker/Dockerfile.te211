@@ -1,0 +1,17 @@
+# Scratch image for A/B bisection ONLY (not for merge): the published 26.06
+# nemo-automodel image with TransformerEngine downgraded from release_v2.14 to
+# release_v2.11 (the 26.04 TE), holding torch/CUDA/DeepEP/automodel constant, to
+# isolate whether the 26.04->26.06 perf regression is the TE bump.
+FROM nvcr.io/nvidia/nemo-automodel:26.06
+
+ARG TE_COMMIT=release_v2.11
+RUN pip uninstall -y transformer_engine transformer_engine_cu13 transformer_engine_torch || true && \
+    git clone https://github.com/NVIDIA/TransformerEngine.git /opt/TE211 && \
+    cd /opt/TE211 && \
+    git fetch origin $TE_COMMIT && \
+    git checkout FETCH_HEAD && \
+    git submodule init && git submodule update && \
+    pip install nvidia-mathdx==25.1.1 && \
+    env NVTE_CUDA_ARCHS="80;90;100;120" NVTE_BUILD_THREADS_PER_JOB=8 pip install --no-cache-dir --no-build-isolation -v . && \
+    cd / && rm -rf /opt/TE211
+RUN python -c "import transformer_engine as te; print('TE', te.__version__)"
