@@ -1,0 +1,12 @@
+# Controlled container-bisection probe: 26.06 base with TransformerEngine pinned to the
+# 26.04 version (2.11), holding torch/nvshmem/deep-ep/AutoModel at their 26.06 values.
+# Isolates whether TE 2.11->2.14 owns the container-half of the qwen3_next_te_deepep regression.
+ARG TE_REF=release_v2.11
+FROM nvcr.io/nvidia/nemo-automodel:26.06
+ARG TE_REF
+ENV PIP_NO_CACHE_DIR=1
+# Rebuild TE from the pinned ref against the image's torch 2.12 / CUDA 13 toolchain.
+RUN pip uninstall -y transformer_engine transformer_engine_cu13 transformer-engine || true && \
+    NVTE_FRAMEWORK=pytorch pip install --no-build-isolation \
+      "git+https://github.com/NVIDIA/TransformerEngine.git@${TE_REF}" && \
+    python -c "import transformer_engine; print('TE', transformer_engine.__version__)"
