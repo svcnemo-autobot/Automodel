@@ -1,0 +1,19 @@
+# syntax=docker/dockerfile:1
+# Controlled bisection artifact: 26.06 nemo-automodel image with ONLY TransformerEngine
+# downgraded to release_v2.11 (the 26.04 TE), holding torch/CUDA/DeepEP/NVSHMEM/AutoModel at 26.06.
+ARG BASE=nvcr.io/nvidia/nemo-automodel:26.06
+FROM ${BASE}
+ARG TE_COMMIT=release_v2.11
+ENV PIP_NO_CACHE_DIR=1
+RUN set -eux; \
+    /opt/venv/bin/pip uninstall -y transformer_engine transformer_engine_cu13 transformer-engine || true; \
+    git clone https://github.com/NVIDIA/TransformerEngine.git /tmp/TE; \
+    cd /tmp/TE; \
+    git fetch origin ${TE_COMMIT}; \
+    git checkout FETCH_HEAD; \
+    git submodule update --init --recursive; \
+    /opt/venv/bin/pip install nvidia-mathdx==25.1.1; \
+    env NVTE_CUDA_ARCHS="90" NVTE_BUILD_THREADS_PER_JOB=8 \
+        /opt/venv/bin/pip install --no-cache-dir --no-build-isolation -v .; \
+    cd /; rm -rf /tmp/TE
+RUN /opt/venv/bin/python -c "import transformer_engine; print('TE', transformer_engine.__version__)"
