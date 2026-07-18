@@ -659,14 +659,16 @@ def apply_lora_to_linear_modules(
                     layer_name=name,
                 )
 
-    # Fuse SwiGLU/ReLU² MLPs whose projections were just LoRA-patched into one memory-efficient
-    # autograd op (recompute the activation in backward); falls back per-MLP under
-    # sharding (DTensor) / DoRA / active dropout.
-    from nemo_automodel.components._peft.lora_mlp import install_fused_lora_mlp
+    # Only fuse when the memory-efficient LoRA path is enabled. The fused MLP recomputes the
+    # SwiGLU activation + down-projection in backward to save activation memory, which trades a
+    # small amount of extra compute; when use_memory_efficient_lora is False (e.g. throughput-bound
+    # runs that are not memory-limited) skip the install so the plain per-linear path is kept.
+    if getattr(peft_config, "use_memory_efficient_lora", True):
+        from nemo_automodel.components._peft.lora_mlp import install_fused_lora_mlp
 
-    n_fused_mlps = install_fused_lora_mlp(model)
-    if n_fused_mlps:
-        logger.info("Fused %d LoRA SwiGLU/ReLU2 MLP module(s) for memory-efficient backward.", n_fused_mlps)
+        n_fused_mlps = install_fused_lora_mlp(model)
+        if n_fused_mlps:
+            logger.info("Fused %d LoRA SwiGLU/ReLU2 MLP module(s) for memory-efficient backward.", n_fused_mlps)
 
     return num_modules_matched
 
