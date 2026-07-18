@@ -83,6 +83,10 @@ peft:
   alpha: 32
   dropout: 0.0
   moe_rank_scaling: true
+  # Throughput benchmark is not memory-bound: skip the fused LoRA-MLP memory-efficient
+  # backward-recompute path (default on since #2239), which otherwise costs ~8% step time
+  # on this recipe (AM-685). Requires the fusion install to honor this flag (see lora.py).
+  use_memory_efficient_lora: false
 
 checkpoint:
   enabled: false
