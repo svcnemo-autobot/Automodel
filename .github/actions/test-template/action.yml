@@ -118,6 +118,8 @@ runs:
 
           . /opt/venv/env.sh
 
+          export COVERAGE_OUTPUT_DIR=/tmp/automodel-coverage
+
           bash tests/run_test.sh --UNIT_TEST=${{ inputs.is-unit-test }} --CPU=${{ inputs.cpu-only}} --TEST_NAME=${{ inputs.test-folder }} --SHARD_ID=${{ inputs.shard-id }} --NUM_SHARDS=${{ inputs.num-shards }}
 
         '
@@ -156,10 +158,12 @@ runs:
       shell: bash -e -u -o pipefail {0}
       if: always()
       run: |
-        docker exec nemo_container_${{ github.run_id }} /opt/venv/bin/coverage combine || true
-        docker exec nemo_container_${{ github.run_id }} /opt/venv/bin/coverage xml || true
-        docker cp nemo_container_${{ github.run_id }}:/opt/Automodel/.coverage .coverage || true
-        docker cp nemo_container_${{ github.run_id }}:/opt/Automodel/coverage.xml coverage.xml || true
+        docker exec -e COVERAGE_FILE=/tmp/automodel-coverage/.coverage nemo_container_${{ github.run_id }} \
+          /opt/venv/bin/coverage combine || true
+        docker exec -e COVERAGE_FILE=/tmp/automodel-coverage/.coverage nemo_container_${{ github.run_id }} \
+          /opt/venv/bin/coverage xml -o /tmp/automodel-coverage/coverage.xml || true
+        docker cp nemo_container_${{ github.run_id }}:/tmp/automodel-coverage/.coverage .coverage || true
+        docker cp nemo_container_${{ github.run_id }}:/tmp/automodel-coverage/coverage.xml coverage.xml || true
 
         coverage_report=coverage-${{ steps.create.outputs.coverage-prefix }}-${{ github.run_id }}-$(uuidgen)
         echo "coverage_report=$coverage_report" | tee -a "$GITHUB_OUTPUT"
@@ -173,7 +177,8 @@ runs:
         fi
 
         echo "::group::Coverage report"
-        docker exec -t nemo_container_${{ github.run_id }} /opt/venv/bin/coverage report -i || true
+        docker exec -t -e COVERAGE_FILE=/tmp/automodel-coverage/.coverage nemo_container_${{ github.run_id }} \
+          /opt/venv/bin/coverage report -i || true
         echo "::endgroup::"
 
         if [[ "$IS_ALLOWED_FAILURE" == "true" ]]; then

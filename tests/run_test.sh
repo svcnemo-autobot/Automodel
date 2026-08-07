@@ -64,6 +64,10 @@ if [[ -n "$MEDIA_EXTRA" ]]; then
     uv pip install ".[$MEDIA_EXTRA]"
 fi
 
+COVERAGE_OUTPUT_DIR="${COVERAGE_OUTPUT_DIR:-$PWD}"
+mkdir -p "$COVERAGE_OUTPUT_DIR"
+export COVERAGE_FILE="$COVERAGE_OUTPUT_DIR/.coverage"
+
 coverage run \
     -m pytest \
     --durations 32 \
@@ -71,6 +75,7 @@ coverage run \
     $TEST_DIR \
     -o log_cli=true \
     -o log_cli_level=INFO \
+    -o cache_dir="$COVERAGE_OUTPUT_DIR/.pytest_cache" \
     -vs -m "not pleasefixme" --tb=short -rA \
     $SHARD_ARGS \
     $ADDITIONAL_ARGS

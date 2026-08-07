@@ -46,8 +46,8 @@ RUN apt-get update && apt-get install -y --only-upgrade gnupg && \
 # Install uv; drop the base image's own /usr/local/bin copy (vulnerable rustls-webpki)
 ENV UV_VERSION="0.11.24"
 RUN curl -LsSf https://astral.sh/uv/${UV_VERSION}/install.sh | sh && \
-    rm -f /usr/local/bin/uv /usr/local/bin/uvx
-ENV PATH="/root/.local/bin:$PATH"
+    install -m 0755 /root/.local/bin/uv /root/.local/bin/uvx /usr/local/bin/ && \
+    rm -rf /root/.local
 ENV UV_PROJECT_ENVIRONMENT=/opt/venv
 ENV UV_CACHE_DIR=/opt/uv_cache
 ENV PATH="$UV_PROJECT_ENVIRONMENT/bin:$PATH"
@@ -232,16 +232,26 @@ RUN if [ "$BASE_IMAGE" = "pytorch" ]; then \
         bash docker/common/update_pyproject_pytorch.sh /opt/Automodel; \
     fi
 
+ARG AUTOMODEL_USER_ID=10001
+ARG AUTOMODEL_GROUP_ID=10001
+RUN groupadd --gid ${AUTOMODEL_GROUP_ID} automodel && \
+    useradd --uid ${AUTOMODEL_USER_ID} --gid ${AUTOMODEL_GROUP_ID} --create-home automodel && \
+    chown -R automodel:automodel /opt/Automodel /opt/venv /opt/uv_cache && \
+    chmod -R g+rwX /opt/Automodel /opt/venv /opt/uv_cache
+
+ENV HOME=/home/automodel
+
 WORKDIR /opt/Automodel
 
 COPY <<EOF /opt/venv/env.sh
 export UV_PROJECT_ENVIRONMENT=/opt/venv
 export PATH="/opt/venv/bin:$PATH"
 export UV_LINK_MODE=copy
-export PATH="/root/.local/bin:$PATH"
 EOF
 
 RUN chmod +x /opt/venv/env.sh
+
+USER automodel:automodel
 
 ARG NVIDIA_BUILD_ID
 ENV NVIDIA_BUILD_ID=${NVIDIA_BUILD_ID:-<unknown>}

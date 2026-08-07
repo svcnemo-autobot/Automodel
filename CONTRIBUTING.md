@@ -42,6 +42,29 @@ uv sync --locked --extra all --all-groups
 > [!WARNING]
 > Ensure `bash docker/common/update_pyproject_pytorch.sh /opt/Automodel` is executed. Without this command, uv sync will attempt to reinstall `torch`. This leads to errors relating to CUDA version mismatch, TE import failures, etc. This work around is required as uv cannot recognize the torch installed in the PyTorch base container.
 
+#### Running tests as a non-root user
+
+The CI image supports arbitrary non-root user and group IDs. To test a local
+commit with the dependencies from an existing image, mount the checkout over
+`/opt/Automodel` and preserve the host identity:
+
+```bash
+git checkout <commit>
+docker run --gpus all --network=host -it --rm --shm-size=32g \
+    --user "$(id -u):$(id -g)" \
+    --group-add 10001 \
+    --env HOME=/tmp \
+    --volume "$PWD:/opt/Automodel" \
+    <automodel-ci-image> \
+    bash -c '. /opt/venv/env.sh && bash tests/run_test.sh --UNIT_TEST=true --CPU=true'
+```
+
+Use the image produced from the same dependency inputs as the commit whenever
+possible. The default image group ID is `10001`; pass the configured
+`AUTOMODEL_GROUP_ID` to `--group-add` for custom builds. Source-only commits can
+reuse an existing CI image; rebuild the image when `docker/Dockerfile`,
+`pyproject.toml`, or either lockfile changes.
+
 ### 2. Developing with uv sync/pip install
 
 Uv sync and pip install are both supported in Automodel. Uv sync is the recommened path.
