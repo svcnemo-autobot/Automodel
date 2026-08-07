@@ -145,6 +145,7 @@ RUN mkdir -p /wheels && \
 
 # FA3 (Hopper-only, SM90a-locked, ~25 min nvcc) + FA4 cute (Blackwell, lightweight). arm64 -> skip FA3: GB200 target, QEMU cross-build impractical.
 ARG FLASH_ATTN_REF=002cce0a1
+ARG FLASH_ATTN_MAX_JOBS=4
 ARG INSTALL_FA3=true
 ARG INSTALL_FA4=false
 ARG TARGETARCH
@@ -156,7 +157,7 @@ RUN if [ "$TARGETARCH" = "arm64" ]; then INSTALL_FA3=false; fi && \
     fi && \
     if [ "$INSTALL_FA3" = "true" ]; then \
         cd /tmp/fa/hopper && \
-        FLASH_ATTENTION_DISABLE_SM80=TRUE MAX_JOBS=$(nproc) NVCC_THREADS=2 \
+        FLASH_ATTENTION_DISABLE_SM80=TRUE MAX_JOBS=${FLASH_ATTN_MAX_JOBS} NVCC_THREADS=2 \
         pip wheel --no-cache-dir --no-build-isolation --no-deps -w /wheels . ; \
     fi && \
     if [ "$INSTALL_FA4" = "true" ]; then \
