@@ -61,7 +61,7 @@ case "$TEST_NAME" in
     *) MEDIA_EXTRA="" ;;
 esac
 if [[ -n "$MEDIA_EXTRA" ]]; then
-    uv pip install ".[$MEDIA_EXTRA]"
+    uv pip install --offline --no-build-isolation --no-deps ".[$MEDIA_EXTRA]"
 fi
 
 COVERAGE_OUTPUT_DIR="${COVERAGE_OUTPUT_DIR:-$PWD}"

@@ -209,6 +209,7 @@ COPY docker/common/update_pyproject_pytorch.sh /opt/Automodel/docker/common/
 # Install Automodel
 ARG BASE_IMAGE=cuda
 ARG AUTOMODEL_INSTALL=all
+ARG AUTOMODEL_TEST_EXTRA=vlm-media
 ARG UV_SYNC_ARGS="--locked"
 # Preserve locally built wheels for source-only CUDA packages such as flash-attn,
 # causal-conv1d, mamba-ssm, and nv-grouped-gemm across BuildKit builds.
@@ -220,7 +221,7 @@ RUN --mount=type=cache,target=/opt/uv_cache,sharing=locked \
         MAGI_ATTENTION_PREBUILD_FFA=0 \
         MAX_JOBS=8 \
         UV_CONCURRENT_INSTALLS=8 \
-        uv sync --extra $AUTOMODEL_INSTALL --all-groups $UV_SYNC_ARGS && \
+        uv sync --extra $AUTOMODEL_INSTALL --extra $AUTOMODEL_TEST_EXTRA --all-groups $UV_SYNC_ARGS && \
     python -c "import importlib.metadata as m; import magi_attention; print('magi-attention', m.version('magi-attention'))"
 
 # Persistent disk cache for FA4's CuTe-DSL JIT (amortizes kernel compiles across restarts)
