@@ -1,0 +1,6 @@
+ARG AUTOMODEL_IMAGE=asia-southeast1-docker.pkg.dev/nv-nemoautomati-20260505210812/ci-images/us-east-1/automodel@sha256:53cb1813c5beae7028eaf59de3bfe719a6f4716044b89393e83322f40ed9970c
+FROM ${AUTOMODEL_IMAGE}
+USER root
+WORKDIR /opt/Automodel
+RUN . /opt/venv/env.sh && uv sync --locked --all-groups --extra all --extra media
+USER root
