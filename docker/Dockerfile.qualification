@@ -101,7 +101,7 @@ FROM update_base_container AS automodel_dep
 
 # Install TE
 ARG INSTALL_TE=True
-ARG TE_COMMIT=release_v2.14
+ARG TE_COMMIT=64efcd1fa8c3d17828e2edbfc313225568afc0b3
 RUN if [ "$INSTALL_TE" = "True" ]; then \
     git clone https://github.com/NVIDIA/TransformerEngine.git && \
     cd TransformerEngine && \
@@ -275,7 +275,7 @@ COPY --chown=${RUNTIME_UID}:${RUNTIME_GID} . /opt/Automodel
 # The checkout is owned by RUNTIME_UID but the image still runs as root by default,
 # so Git would reject /opt/Automodel for dubious ownership. Trust it system-wide to
 # keep both identities able to read the repository history.
-RUN git config --system --add safe.directory /opt/Automodel
+RUN git config --global --add safe.directory /opt/Automodel
 
 # Re-apply PyTorch overrides after full COPY (which overwrites the modified pyproject.toml/uv.lock)
 RUN if [ "$BASE_IMAGE" = "pytorch" ]; then \
