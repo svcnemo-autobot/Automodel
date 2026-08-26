@@ -186,7 +186,7 @@ RUN mkdir -p /wheels && \
     rm -rf /tmp/torchao
 
 # FA3 (Hopper-only, SM90a-locked, ~25 min nvcc) + FA4 cute (Blackwell, lightweight). arm64 -> skip FA3: GB200 target, QEMU cross-build impractical.
-ARG FLASH_ATTN_REF=002cce0a1
+ARG FLASH_ATTN_REF=002cce0a1068f8c07dfccb5a1d232b9a3276947c
 ARG INSTALL_FA3=true
 ARG INSTALL_FA4=false
 ARG TARGETARCH
