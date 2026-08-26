@@ -145,7 +145,7 @@ RUN apt-get update && apt-get install -y --allow-change-held-packages \
 
 # Install Bitsandbytes
 ARG INSTALL_BITSANDBYTES=True
-ARG BITSANDBYTES_COMMIT=0.49.2
+ARG BITSANDBYTES_COMMIT=f0e6ca31b32c4744a9cee4e31610b25796cbf778
 # Include native Blackwell targets, especially SM121 for DGX Spark, instead of relying on forward-compatible PTX.
 RUN if [ $INSTALL_BITSANDBYTES = "True" ]; then \
     git clone https://github.com/bitsandbytes-foundation/bitsandbytes.git && \
@@ -174,7 +174,7 @@ RUN if [ "$INSTALL_UCCL_EP" = "True" ]; then \
 FROM automodel_dep AS wheel_builder
 
 # torchao MXFP8: build w/ submodules (PyPI wheels omit mxfp8 CUDA kernels on aarch64); pin v0.17.0 (v0.14.1 ~2.5x slower; main needs nvidia-cutlass-dsl).
-ARG TORCHAO_REF=v0.17.0
+ARG TORCHAO_REF=02105d46c61dc80a8c9d39d5836e827ba3af8439
 RUN mkdir -p /wheels && \
     git clone --depth 1 --branch ${TORCHAO_REF} --recurse-submodules --shallow-submodules \
         https://github.com/pytorch/ao.git /tmp/torchao && \
