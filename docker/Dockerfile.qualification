@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG CUDA_IMAGE=nvcr.io/nvidia/cuda-dl-base:26.04-cuda13.2-devel-ubuntu24.04
+ARG CUDA_IMAGE=scratch
 ARG PYTORCH_IMAGE=nvcr.io/nvidia/pytorch:26.06-py3
 ARG BASE_IMAGE=cuda
 
@@ -145,12 +145,11 @@ RUN apt-get update && apt-get install -y --allow-change-held-packages \
 
 # Install Bitsandbytes
 ARG INSTALL_BITSANDBYTES=True
-ARG BITSANDBYTES_COMMIT=0.49.2
+ARG BITSANDBYTES_COMMIT=7718a8ad8377bb868848134a08a4f3d4f3ad8d73
 # Include native Blackwell targets, especially SM121 for DGX Spark, instead of relying on forward-compatible PTX.
 RUN if [ $INSTALL_BITSANDBYTES = "True" ]; then \
     git clone https://github.com/bitsandbytes-foundation/bitsandbytes.git && \
     cd bitsandbytes && \
-    git pull && \
     git fetch origin $BITSANDBYTES_COMMIT && \
     git checkout FETCH_HEAD && \
     cmake -DCOMPUTE_BACKEND=cuda -DCOMPUTE_CAPABILITY="80;86;90;100;110;120;121" -S . && \
