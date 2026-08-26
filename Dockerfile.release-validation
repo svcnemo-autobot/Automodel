@@ -1,0 +1,9 @@
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
+RUN source /opt/venv/env.sh && \
+    uv pip install --no-cache-dir \
+        albumentations \
+        "opencv-python-headless==4.10.0.84" \
+        qwen-omni-utils \
+        qwen-vl-utils \
+        decord
