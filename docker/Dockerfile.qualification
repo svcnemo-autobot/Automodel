@@ -145,7 +145,7 @@ RUN apt-get update && apt-get install -y --allow-change-held-packages \
 
 # Install Bitsandbytes
 ARG INSTALL_BITSANDBYTES=True
-ARG BITSANDBYTES_COMMIT=7718a8ad8377bb868848134a08a4f3d4f3ad8d73
+ARG BITSANDBYTES_COMMIT=f0e6ca31b32c4744a9cee4e31610b25796cbf778
 # Include native Blackwell targets, especially SM121 for DGX Spark, instead of relying on forward-compatible PTX.
 RUN if [ $INSTALL_BITSANDBYTES = "True" ]; then \
     git clone https://github.com/bitsandbytes-foundation/bitsandbytes.git && \
