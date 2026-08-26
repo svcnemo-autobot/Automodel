@@ -101,7 +101,7 @@ FROM update_base_container AS automodel_dep
 
 # Install TE
 ARG INSTALL_TE=True
-ARG TE_COMMIT=64efcd1fa8c3d17828e2edbfc313225568afc0b3
+ARG TE_COMMIT=366798ef8a0a00d8f2c1650d11e7e623d7c33e26
 RUN if [ "$INSTALL_TE" = "True" ]; then \
     git clone https://github.com/NVIDIA/TransformerEngine.git && \
     cd TransformerEngine && \
