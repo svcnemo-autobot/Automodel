@@ -205,6 +205,14 @@ RUN if [ "$TARGETARCH" = "arm64" ]; then INSTALL_FA3=false; fi && \
 
 FROM automodel_dep AS automodel_final
 
+# Validation-only release-suite runtime: bake the VLM launcher dependency set.
+RUN uv pip install --no-cache-dir --no-deps \
+        albumentations \
+        "opencv-python-headless==4.10.0.84" \
+        qwen-omni-utils \
+        qwen-vl-utils \
+        decord
+
 WORKDIR /opt/Automodel
 
 # torchao MXFP8 + FA3/FA4: prebuilt wheels from the wheel_builder stage, installed into system site-packages
