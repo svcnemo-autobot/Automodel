@@ -1,4 +1,4 @@
-FROM asia-southeast1-docker.pkg.dev/nv-nemoautomati-20260505210812/ci-images/us-east-1/automodel@sha256:02f4ccbcb23c5e90641fd9583aa9ca2ebfec1c6d1c5e8320c5179c507a01d171
+FROM 766267172432.dkr.ecr.us-east-1.amazonaws.com/automodel@sha256:02f4ccbcb23c5e90641fd9583aa9ca2ebfec1c6d1c5e8320c5179c507a01d171
 
 USER root
 ENV NO_VCS_VERSION=1 \
