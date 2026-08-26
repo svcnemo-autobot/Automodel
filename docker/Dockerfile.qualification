@@ -284,4 +284,4 @@ RUN export HOME=/home/nemo-runtime \
         /opt/uv_cache/.nonroot-write-probe \
         "${venv_site_packages}/.nonroot-write-probe"
 
-USER root
+USER ${RUNTIME_UID}:${RUNTIME_GID}
