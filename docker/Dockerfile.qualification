@@ -229,6 +229,7 @@ COPY --chown=${RUNTIME_UID}:${RUNTIME_GID} . /opt/Automodel
 # so Git would reject /opt/Automodel for dubious ownership. Trust it system-wide to
 # keep both identities able to read the repository history.
 RUN git config --global --add safe.directory /opt/Automodel
+RUN chown -R "${RUNTIME_UID}:${RUNTIME_GID}" /opt/uv_cache
 
 # Re-apply PyTorch overrides after full COPY (which overwrites the modified pyproject.toml/uv.lock)
 RUN if [ "$BASE_IMAGE" = "pytorch" ]; then \
@@ -241,7 +242,7 @@ COPY <<EOF /opt/venv/env.sh
 export UV_PROJECT_ENVIRONMENT=/opt/venv
 export NO_VCS_VERSION=1
 export UV_NO_BUILD_ISOLATION=1
-export UV_PROJECT=
+unset UV_PROJECT
 export PATH="/opt/venv/bin:$PATH"
 export UV_LINK_MODE=copy
 export PATH="/usr/local/bin:$PATH"
